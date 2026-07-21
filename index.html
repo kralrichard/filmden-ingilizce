@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎬 Filmden İngilizce — Cümleleri Gerçek Sahnelerde Öğren</title>
+<style>
+  :root{
+    --bg:#0d1117; --card:#161b22; --card2:#1c2330; --border:#2a3441;
+    --text:#e6edf3; --muted:#8b98a5; --accent:#ff5c7a; --accent2:#4aa8ff;
+    --gold:#ffb02e; --green:#3fb950;
+    --shadow:0 8px 28px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%,#1a2130 0%,var(--bg) 55%);
+    color:var(--text); min-height:100vh; padding-bottom:60px;
+  }
+  header{
+    text-align:center; padding:38px 16px 24px;
+  }
+  header h1{font-size:2rem; letter-spacing:.5px}
+  header h1 .film{color:var(--accent)}
+  header p{color:var(--muted); margin-top:8px; font-size:.98rem; max-width:640px; margin-inline:auto; line-height:1.5}
+  .wrap{max-width:900px; margin:0 auto; padding:0 16px}
+
+  .controls{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+    justify-content:center; margin:22px 0 8px;
+  }
+  #search{
+    flex:1 1 240px; max-width:360px; background:var(--card); border:1px solid var(--border);
+    color:var(--text); padding:11px 14px; border-radius:12px; font-size:.95rem; outline:none;
+  }
+  #search:focus{border-color:var(--accent2)}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:6px 0 18px}
+  .chip{
+    background:var(--card); border:1px solid var(--border); color:var(--muted);
+    padding:7px 14px; border-radius:999px; cursor:pointer; font-size:.85rem; transition:.15s;
+  }
+  .chip:hover{border-color:var(--accent2); color:var(--text)}
+  .chip.active{background:var(--accent2); border-color:var(--accent2); color:#04121f; font-weight:600}
+
+  .count{text-align:center; color:var(--muted); font-size:.85rem; margin-bottom:14px}
+
+  .card{
+    background:linear-gradient(180deg,var(--card),var(--card2));
+    border:1px solid var(--border); border-radius:16px; padding:20px 20px 16px;
+    margin-bottom:16px; box-shadow:var(--shadow); position:relative; overflow:hidden;
+  }
+  .card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--accent)}
+  .lvl{
+    position:absolute; top:14px; right:16px; font-size:.7rem; font-weight:700;
+    padding:3px 9px; border-radius:999px; letter-spacing:.5px;
+  }
+  .lvl.A{background:rgba(63,185,80,.15); color:var(--green)}
+  .lvl.B{background:rgba(74,168,255,.15); color:var(--accent2)}
+  .lvl.C{background:rgba(255,92,122,.15); color:var(--accent)}
+  .en{font-size:1.28rem; font-weight:700; line-height:1.35; padding-right:56px}
+  .en .say{
+    color:var(--muted); font-size:.9rem; font-weight:500; cursor:pointer; margin-left:6px;
+    user-select:none;
+  }
+  .en .say:hover{color:var(--gold)}
+  .tr{color:var(--muted); margin-top:7px; font-size:1rem}
+  .movie{
+    display:inline-flex; align-items:center; gap:6px; margin-top:12px;
+    color:var(--gold); font-size:.82rem; background:rgba(255,176,46,.08);
+    padding:4px 10px; border-radius:8px;
+  }
+  .links{display:flex; flex-wrap:wrap; gap:10px; margin-top:14px}
+  .btn{
+    display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+    padding:10px 16px; border-radius:11px; font-size:.9rem; font-weight:600;
+    transition:.15s; border:1px solid transparent;
+  }
+  .btn.play{background:var(--accent); color:#1a0007}
+  .btn.play:hover{filter:brightness(1.1); transform:translateY(-1px)}
+  .btn.you{background:transparent; border-color:var(--accent2); color:var(--accent2)}
+  .btn.you:hover{background:rgba(74,168,255,.12)}
+  .hint{color:var(--muted); font-size:.75rem; margin-top:10px; opacity:.7}
+
+  footer{text-align:center; color:var(--muted); font-size:.8rem; margin-top:30px; line-height:1.6}
+  .empty{text-align:center; color:var(--muted); padding:40px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎬 <span class="film">Filmden</span> İngilizce</h1>
+  <p>Cümleyi oku, anlamını gör — sonra tıkla ve o cümlenin <b>gerçek film & dizilerde</b> nasıl söylendiğini izle. 🔊 simgesine dokunarak telaffuzu gerçek kişilerden dinle.</p>
+</header>
+
+<div class="wrap">
+  <div class="controls">
+    <input id="search" type="text" placeholder="🔍 Cümle veya kelime ara...">
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="count" id="count"></div>
+  <div id="list"></div>
+  <footer>
+    🎬 = PlayPhrase.me (film/dizi sahnesi) &nbsp;•&nbsp; 🔊 = YouGlish (gerçek telaffuz)<br>
+    Cümleler dış servislerde aranır; videolar gerçek film ve dizilerden gelir.
+  </footer>
+</div>
+
+<script>
+const DATA = [
+  {en:"I'll be back.", tr:"Geri döneceğim.", movie:"The Terminator", lvl:"A"},
+  {en:"May the Force be with you.", tr:"Güç seninle olsun.", movie:"Star Wars", lvl:"A"},
+  {en:"Why so serious?", tr:"Neden bu kadar ciddisin?", movie:"The Dark Knight", lvl:"A"},
+  {en:"I don't know what you're talking about.", tr:"Neden bahsettiğini bilmiyorum.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"What are you doing here?", tr:"Burada ne yapıyorsun?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"It's not your fault.", tr:"Senin suçun değil.", movie:"Good Will Hunting", lvl:"A"},
+  {en:"I have a bad feeling about this.", tr:"İçimde kötü bir his var.", movie:"Star Wars", lvl:"B"},
+  {en:"You can't handle the truth!", tr:"Gerçeği kaldıramazsın!", movie:"A Few Good Men", lvl:"B"},
+  {en:"Here's looking at you, kid.", tr:"Şerefine, evladım.", movie:"Casablanca", lvl:"C"},
+  {en:"Are you talking to me?", tr:"Benimle mi konuşuyorsun?", movie:"Taxi Driver", lvl:"A"},
+  {en:"I'm gonna make him an offer he can't refuse.", tr:"Ona reddedemeyeceği bir teklif yapacağım.", movie:"The Godfather", lvl:"C"},
+  {en:"Just keep swimming.", tr:"Sadece yüzmeye devam et.", movie:"Finding Nemo", lvl:"A"},
+  {en:"To infinity and beyond!", tr:"Sonsuzluğa ve ötesine!", movie:"Toy Story", lvl:"A"},
+  {en:"Life is like a box of chocolates.", tr:"Hayat bir kutu çikolata gibidir.", movie:"Forrest Gump", lvl:"B"},
+  {en:"You shall not pass!", tr:"Geçemezsin!", movie:"The Lord of the Rings", lvl:"A"},
+  {en:"I see dead people.", tr:"Ölü insanlar görüyorum.", movie:"The Sixth Sense", lvl:"A"},
+  {en:"Houston, we have a problem.", tr:"Houston, bir sorunumuz var.", movie:"Apollo 13", lvl:"B"},
+  {en:"Nobody puts Baby in a corner.", tr:"Kimse Baby'yi köşeye sıkıştıramaz.", movie:"Dirty Dancing", lvl:"C"},
+  {en:"You're gonna need a bigger boat.", tr:"Daha büyük bir tekneye ihtiyacın olacak.", movie:"Jaws", lvl:"B"},
+  {en:"Say hello to my little friend!", tr:"Küçük dostumla tanış!", movie:"Scarface", lvl:"B"},
+  {en:"I am your father.", tr:"Ben senin babanım.", movie:"Star Wars", lvl:"A"},
+  {en:"With great power comes great responsibility.", tr:"Büyük güç, büyük sorumluluk getirir.", movie:"Spider-Man", lvl:"C"},
+  {en:"Elementary, my dear Watson.", tr:"Çok basit, sevgili Watson.", movie:"Sherlock Holmes", lvl:"B"},
+  {en:"Keep your friends close, but your enemies closer.", tr:"Dostlarını yakın tut, düşmanlarını daha yakın.", movie:"The Godfather Part II", lvl:"C"},
+  {en:"I feel the need for speed.", tr:"Hız ihtiyacı hissediyorum.", movie:"Top Gun", lvl:"B"},
+  {en:"What's done is done.", tr:"Olan oldu.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"It's now or never.", tr:"Ya şimdi ya hiç.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I've got your back.", tr:"Arkandayım / Sana destek oluyorum.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Don't worry about it.", tr:"Boş ver / Merak etme.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"It doesn't matter.", tr:"Önemli değil.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"You have no idea.", tr:"Hiçbir fikrin yok.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"We need to talk.", tr:"Konuşmamız lazım.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I can't believe this is happening.", tr:"Bunun olduğuna inanamıyorum.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Trust me.", tr:"Bana güven.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Get out of here!", tr:"Defol buradan!", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"What the hell is going on?", tr:"Neler oluyor böyle?", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I owe you one.", tr:"Sana borçluyum.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"That's none of your business.", tr:"Bu seni ilgilendirmez.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Let's get out of here.", tr:"Hadi buradan gidelim.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I'm on my way.", tr:"Yoldayım / Geliyorum.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Take it easy.", tr:"Sakin ol / Kendine iyi bak.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"It's a long story.", tr:"Uzun hikaye.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"You made my day.", tr:"Günümü güzelleştirdin.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I'll take care of it.", tr:"Ben hallederim.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"You're out of your mind.", tr:"Aklını kaçırmışsın.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Don't push your luck.", tr:"Şansını zorlama.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Cut to the chase.", tr:"Sadede gel.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"It's a piece of cake.", tr:"Çocuk oyuncağı / Çok kolay.", movie:"Sık kullanılan sahne", lvl:"B"},
+
+  // --- Ünlü film & dizi replikleri ---
+  {en:"Hasta la vista, baby.", tr:"Görüşürüz bebeğim.", movie:"Terminator 2", lvl:"B"},
+  {en:"My precious.", tr:"Kıymetlim.", movie:"The Lord of the Rings", lvl:"A"},
+  {en:"Here's Johnny!", tr:"İşte Johnny geldi!", movie:"The Shining", lvl:"A"},
+  {en:"Show me the money!", tr:"Bana parayı göster!", movie:"Jerry Maguire", lvl:"A"},
+  {en:"You had me at hello.", tr:"İlk merhabada beni benden aldın.", movie:"Jerry Maguire", lvl:"C"},
+  {en:"There's no place like home.", tr:"Ev gibisi yok.", movie:"The Wizard of Oz", lvl:"B"},
+  {en:"I'm the king of the world!", tr:"Dünyanın kralıyım!", movie:"Titanic", lvl:"A"},
+  {en:"Go ahead, make my day.", tr:"Hadi, günümü güzelleştir.", movie:"Sudden Impact", lvl:"B"},
+  {en:"Frankly, my dear, I don't give a damn.", tr:"Açıkçası hayatım, hiç umurumda değil.", movie:"Gone with the Wind", lvl:"C"},
+  {en:"Roads? Where we're going, we don't need roads.", tr:"Yollar mı? Gideceğimiz yerde yola gerek yok.", movie:"Back to the Future", lvl:"C"},
+  {en:"Winter is coming.", tr:"Kış geliyor.", movie:"Game of Thrones", lvl:"A"},
+  {en:"You know nothing, Jon Snow.", tr:"Hiçbir şey bilmiyorsun Jon Snow.", movie:"Game of Thrones", lvl:"B"},
+  {en:"How you doin'?", tr:"Nasıl gidiyor?", movie:"Friends", lvl:"A"},
+  {en:"Live long and prosper.", tr:"Uzun yaşa ve başarılı ol.", movie:"Star Trek", lvl:"B"},
+  {en:"Keep the change.", tr:"Üstü kalsın.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I'll have what she's having.", tr:"Ben de onun yediğinden istiyorum.", movie:"When Harry Met Sally", lvl:"C"},
+  {en:"Wax on, wax off.", tr:"Cilala, parlat (sabırla öğren).", movie:"The Karate Kid", lvl:"B"},
+  {en:"Resistance is futile.", tr:"Direnmek boşuna.", movie:"Star Trek", lvl:"B"},
+  {en:"Say my name.", tr:"Adımı söyle.", movie:"Breaking Bad", lvl:"A"},
+  {en:"I am the one who knocks.", tr:"Kapıyı çalan benim.", movie:"Breaking Bad", lvl:"C"},
+
+  // --- Günlük konuşma: tanışma & nezaket (A) ---
+  {en:"Nice to meet you.", tr:"Tanıştığıma memnun oldum.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"What's your name?", tr:"Adın ne?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Where are you from?", tr:"Nerelisin?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"How are you?", tr:"Nasılsın?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I'm fine, thank you.", tr:"İyiyim, teşekkürler.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Thank you so much.", tr:"Çok teşekkür ederim.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"You're welcome.", tr:"Rica ederim.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Excuse me.", tr:"Affedersiniz.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I'm sorry.", tr:"Özür dilerim.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"See you later.", tr:"Görüşürüz.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"What time is it?", tr:"Saat kaç?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Can you help me?", tr:"Bana yardım edebilir misin?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I don't understand.", tr:"Anlamıyorum.", movie:"Sık kullanılan sahne", lvl:"A"},
+
+  // --- Günlük konuşma: duygular & durumlar (A) ---
+  {en:"I love you.", tr:"Seni seviyorum.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I miss you.", tr:"Seni özledim.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Are you okay?", tr:"İyi misin?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"What happened?", tr:"Ne oldu?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Who are you?", tr:"Sen kimsin?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"What do you want?", tr:"Ne istiyorsun?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I don't care.", tr:"Umurumda değil.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"It's okay.", tr:"Sorun değil.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I'm hungry.", tr:"Açım.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I'm tired.", tr:"Yorgunum.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I need your help.", tr:"Yardımına ihtiyacım var.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Give me a chance.", tr:"Bana bir şans ver.", movie:"Sık kullanılan sahne", lvl:"A"},
+
+  // --- Günlük konuşma: emirler & tepkiler (A) ---
+  {en:"Come here.", tr:"Buraya gel.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Wait for me.", tr:"Beni bekle.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Follow me.", tr:"Beni takip et.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Look at me.", tr:"Bana bak.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Be careful.", tr:"Dikkatli ol.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Good luck.", tr:"İyi şanslar.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Calm down.", tr:"Sakin ol.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Hurry up!", tr:"Acele et!", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Shut up!", tr:"Kapa çeneni!", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Stop it!", tr:"Dur artık!", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Leave me alone.", tr:"Beni rahat bırak.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Don't be afraid.", tr:"Korkma.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Tell me the truth.", tr:"Bana gerçeği söyle.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I promise.", tr:"Söz veriyorum.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Everything will be fine.", tr:"Her şey yoluna girecek.", movie:"Sık kullanılan sahne", lvl:"A"},
+
+  // --- Günlük konuşma: orta seviye (B) ---
+  {en:"I've been thinking about you.", tr:"Seni düşünüyordum.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"You should have told me.", tr:"Bana söylemeliydin.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"It's not what it looks like.", tr:"Göründüğü gibi değil.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I didn't mean to hurt you.", tr:"Seni incitmek istememiştim.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"We're running out of time.", tr:"Zamanımız tükeniyor.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Something's not right.", tr:"Bir şeyler yanlış.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"You changed my life.", tr:"Hayatımı değiştirdin.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Let me explain.", tr:"Açıklamama izin ver.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"You don't understand.", tr:"Anlamıyorsun.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Don't make me do this.", tr:"Bunu bana yaptırma.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"It's over.", tr:"Bitti.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I can't lose you.", tr:"Seni kaybedemem.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"You have to trust me.", tr:"Bana güvenmek zorundasın.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"We had a deal.", tr:"Anlaşmıştık.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"This changes everything.", tr:"Bu her şeyi değiştirir.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I'll do whatever it takes.", tr:"Ne gerekiyorsa yapacağım.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"There's no turning back.", tr:"Geri dönüş yok.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"You're making a mistake.", tr:"Hata yapıyorsun.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I won't let you down.", tr:"Seni hayal kırıklığına uğratmayacağım.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Stay out of my way.", tr:"Yolumdan çekil.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I've made up my mind.", tr:"Kararımı verdim.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Don't get me wrong.", tr:"Beni yanlış anlama.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"You'll regret this.", tr:"Bunun için pişman olacaksın.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I owe you an apology.", tr:"Sana özür borçluyum.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"It's a matter of time.", tr:"Bu bir zaman meselesi.", movie:"Sık kullanılan sahne", lvl:"B"},
+
+  // --- Deyimler (C) ---
+  {en:"Break a leg.", tr:"Bol şans (deyim).", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"It's raining cats and dogs.", tr:"Bardaktan boşanırcasına yağıyor.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Speak of the devil.", tr:"İyi insan lafının üstüne gelir.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Bite the bullet.", tr:"Dişini sıkmak, zora katlanmak.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Once in a blue moon.", tr:"Kırk yılda bir.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"The ball is in your court.", tr:"Karar sende / sıra sende.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Hit the nail on the head.", tr:"Tam üstüne basmak.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Call it a day.", tr:"Bugünlük bu kadar.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Get cold feet.", tr:"Son anda tereddüt etmek.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Pull yourself together.", tr:"Kendine gel, topla kendini.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"It's not rocket science.", tr:"O kadar da zor değil.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Actions speak louder than words.", tr:"Lafla peynir gemisi yürümez.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Better late than never.", tr:"Geç olsun güç olmasın.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Kill two birds with one stone.", tr:"Bir taşla iki kuş vurmak.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Cut me some slack.", tr:"Bana biraz müsamaha göster.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"You're pulling my leg.", tr:"Benimle dalga geçiyorsun.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"It costs an arm and a leg.", tr:"Bir servete mal oluyor.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Don't count your chickens.", tr:"Dereyi görmeden paçaları sıvama.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"That's the last straw.", tr:"Bu bardağı taşıran son damla.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Let's cut to the chase.", tr:"Sadede gelelim.", movie:"Sık kullanılan sahne", lvl:"C"}
+];
+
+const list = document.getElementById('list');
+const count = document.getElementById('count');
+const chipsBox = document.getElementById('chips');
+const search = document.getElementById('search');
+
+let activeLvl = 'all';
+const LVL_NAMES = {all:'Tümü', A:'Kolay (A)', B:'Orta (B)', C:'İleri (C)'};
+
+['all','A','B','C'].forEach(l=>{
+  const c = document.createElement('div');
+  c.className = 'chip' + (l==='all'?' active':'');
+  c.textContent = LVL_NAMES[l];
+  c.onclick = ()=>{ activeLvl=l; [...chipsBox.children].forEach(x=>x.classList.remove('active')); c.classList.add('active'); render(); };
+  chipsBox.appendChild(c);
+});
+
+function pp(phrase){ return 'https://www.playphrase.me/#/search?q=' + encodeURIComponent(phrase); }
+function yg(phrase){ return 'https://youglish.com/pronounce/' + encodeURIComponent(phrase) + '/english'; }
+
+function render(){
+  const q = search.value.trim().toLowerCase();
+  const items = DATA.filter(d=>{
+    const okLvl = activeLvl==='all' || d.lvl===activeLvl;
+    const okQ = !q || d.en.toLowerCase().includes(q) || d.tr.toLowerCase().includes(q);
+    return okLvl && okQ;
+  });
+  count.textContent = items.length + ' cümle';
+  if(!items.length){ list.innerHTML = '<div class="empty">Sonuç bulunamadı 🔍</div>'; return; }
+  list.innerHTML = items.map(d=>`
+    <div class="card">
+      <span class="lvl ${d.lvl}">${d.lvl}</span>
+      <div class="en">${escapeHtml(d.en)}<span class="say" title="Telaffuzu dinle" onclick="window.open('${yg(d.en)}','_blank')">🔊</span></div>
+      <div class="tr">${escapeHtml(d.tr)}</div>
+      <div class="movie">🎞️ ${escapeHtml(d.movie)}</div>
+      <div class="links">
+        <a class="btn play" href="${pp(d.en)}" target="_blank" rel="noopener">🎬 Filmde izle</a>
+        <a class="btn you" href="${yg(d.en)}" target="_blank" rel="noopener">🔊 Telaffuz</a>
+      </div>
+      <div class="hint">Link, bu cümlenin geçtiği gerçek film & dizi sahnelerini açar.</div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(s){ return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+search.addEventListener('input', render);
+render();
+</script>
+</body>
+</html>
