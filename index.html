@@ -6,103 +6,117 @@
 <title>🎬 Filmden İngilizce — Cümleleri Gerçek Sahnelerde Öğren</title>
 <style>
   :root{
-    --bg:#0d1117; --card:#161b22; --card2:#1c2330; --border:#2a3441;
-    --text:#e6edf3; --muted:#8b98a5; --accent:#ff5c7a; --accent2:#4aa8ff;
-    --gold:#ffb02e; --green:#3fb950;
-    --shadow:0 8px 28px rgba(0,0,0,.45);
+    --bg:#0d1117; --text:#f2f6fb; --muted:#aab6c4;
+    --accent:#ff5c7a; --accent2:#4aa8ff; --gold:#ffb02e; --green:#3fb950;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%; overflow:hidden}
   body{
     font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-    background:radial-gradient(1200px 600px at 50% -10%,#1a2130 0%,var(--bg) 55%);
-    color:var(--text); min-height:100vh; padding-bottom:60px;
+    background:var(--bg); color:var(--text);
   }
-  header{
-    text-align:center; padding:38px 16px 24px;
-  }
-  header h1{font-size:2rem; letter-spacing:.5px}
-  header h1 .film{color:var(--accent)}
-  header p{color:var(--muted); margin-top:8px; font-size:.98rem; max-width:640px; margin-inline:auto; line-height:1.5}
-  .wrap{max-width:900px; margin:0 auto; padding:0 16px}
 
-  .controls{
-    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
-    justify-content:center; margin:22px 0 8px;
+  /* Üst bar */
+  .topbar{
+    position:fixed; top:0; left:0; right:0; z-index:20;
+    display:flex; align-items:center; gap:10px; padding:12px 14px;
+    background:linear-gradient(180deg,rgba(13,17,23,.92),rgba(13,17,23,0));
+    pointer-events:none;
   }
-  #search{
-    flex:1 1 240px; max-width:360px; background:var(--card); border:1px solid var(--border);
-    color:var(--text); padding:11px 14px; border-radius:12px; font-size:.95rem; outline:none;
-  }
-  #search:focus{border-color:var(--accent2)}
-  .chips{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:6px 0 18px}
+  .topbar > *{pointer-events:auto}
+  .brand{font-weight:800; font-size:1.02rem; white-space:nowrap}
+  .brand .film{color:var(--accent)}
+  .chips{display:flex; gap:6px; margin-left:auto}
   .chip{
-    background:var(--card); border:1px solid var(--border); color:var(--muted);
-    padding:7px 14px; border-radius:999px; cursor:pointer; font-size:.85rem; transition:.15s;
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); color:var(--muted);
+    padding:6px 12px; border-radius:999px; cursor:pointer; font-size:.8rem; transition:.15s;
   }
-  .chip:hover{border-color:var(--accent2); color:var(--text)}
-  .chip.active{background:var(--accent2); border-color:var(--accent2); color:#04121f; font-weight:600}
+  .chip.active{background:var(--accent2); border-color:var(--accent2); color:#04121f; font-weight:700}
+  #searchBtn{
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); color:var(--text);
+    width:38px; height:34px; border-radius:999px; cursor:pointer; font-size:1rem;
+  }
+  #searchBox{
+    position:fixed; top:56px; left:14px; right:14px; z-index:20; display:none;
+  }
+  #searchBox.show{display:block}
+  #search{
+    width:100%; background:#1c2330; border:1px solid var(--accent2);
+    color:var(--text); padding:12px 14px; border-radius:12px; font-size:.95rem; outline:none;
+  }
 
-  .count{text-align:center; color:var(--muted); font-size:.85rem; margin-bottom:14px}
+  /* Kaydırmalı feed */
+  .feed{
+    height:100dvh; overflow-y:scroll; scroll-snap-type:y mandatory;
+    scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  }
+  .feed::-webkit-scrollbar{display:none}
 
-  .card{
-    background:linear-gradient(180deg,var(--card),var(--card2));
-    border:1px solid var(--border); border-radius:16px; padding:20px 20px 16px;
-    margin-bottom:16px; box-shadow:var(--shadow); position:relative; overflow:hidden;
+  .slide{
+    height:100dvh; scroll-snap-align:start; scroll-snap-stop:always;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    text-align:center; padding:80px 22px 96px; position:relative;
   }
-  .card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--accent)}
-  .lvl{
-    position:absolute; top:14px; right:16px; font-size:.7rem; font-weight:700;
-    padding:3px 9px; border-radius:999px; letter-spacing:.5px;
+  .slide .inner{max-width:640px; width:100%; animation:pop .4s ease}
+  @keyframes pop{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+
+  .lvlTag{
+    display:inline-block; font-size:.72rem; font-weight:800; letter-spacing:.5px;
+    padding:4px 12px; border-radius:999px; margin-bottom:18px;
   }
-  .lvl.A{background:rgba(63,185,80,.15); color:var(--green)}
-  .lvl.B{background:rgba(74,168,255,.15); color:var(--accent2)}
-  .lvl.C{background:rgba(255,92,122,.15); color:var(--accent)}
-  .en{font-size:1.28rem; font-weight:700; line-height:1.35; padding-right:56px}
-  .en .say{
-    color:var(--muted); font-size:.9rem; font-weight:500; cursor:pointer; margin-left:6px;
-    user-select:none;
+  .lvlTag.A{background:rgba(63,185,80,.16); color:var(--green)}
+  .lvlTag.B{background:rgba(74,168,255,.16); color:var(--accent2)}
+  .lvlTag.C{background:rgba(255,92,122,.16); color:var(--accent)}
+
+  .en{font-size:2.1rem; font-weight:800; line-height:1.25}
+  .say{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:34px; height:34px; margin-left:8px; vertical-align:middle;
+    background:rgba(255,176,46,.15); border-radius:50%; cursor:pointer; font-size:1.1rem;
   }
-  .en .say:hover{color:var(--gold)}
-  .tr{color:var(--muted); margin-top:7px; font-size:1rem}
+  .say:active{transform:scale(.9)}
+  .tr{color:var(--muted); margin-top:16px; font-size:1.25rem; line-height:1.4}
   .movie{
-    display:inline-flex; align-items:center; gap:6px; margin-top:12px;
-    color:var(--gold); font-size:.82rem; background:rgba(255,176,46,.08);
-    padding:4px 10px; border-radius:8px;
+    display:inline-flex; align-items:center; gap:6px; margin-top:20px;
+    color:var(--gold); font-size:.85rem; background:rgba(255,176,46,.1);
+    padding:6px 14px; border-radius:999px;
   }
-  .links{display:flex; flex-wrap:wrap; gap:10px; margin-top:14px}
+  .links{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:26px}
   .btn{
-    display:inline-flex; align-items:center; gap:7px; text-decoration:none;
-    padding:10px 16px; border-radius:11px; font-size:.9rem; font-weight:600;
-    transition:.15s; border:1px solid transparent;
+    display:inline-flex; align-items:center; gap:8px; text-decoration:none;
+    padding:13px 22px; border-radius:14px; font-size:1rem; font-weight:700;
+    transition:.15s; border:2px solid transparent;
   }
-  .btn.play{background:var(--accent); color:#1a0007}
-  .btn.play:hover{filter:brightness(1.1); transform:translateY(-1px)}
+  .btn.play{background:var(--accent); color:#1a0007; box-shadow:0 6px 20px rgba(255,92,122,.35)}
+  .btn.play:active{transform:scale(.96)}
   .btn.you{background:transparent; border-color:var(--accent2); color:var(--accent2)}
-  .btn.you:hover{background:rgba(74,168,255,.12)}
-  .hint{color:var(--muted); font-size:.75rem; margin-top:10px; opacity:.7}
 
-  footer{text-align:center; color:var(--muted); font-size:.8rem; margin-top:30px; line-height:1.6}
-  .empty{text-align:center; color:var(--muted); padding:40px 0}
+  /* Sağ alt: sayaç + kaydır ipucu */
+  .counter{
+    position:fixed; right:14px; bottom:16px; z-index:15;
+    background:rgba(0,0,0,.4); color:var(--muted); font-size:.8rem;
+    padding:5px 12px; border-radius:999px; backdrop-filter:blur(6px);
+  }
+  .swipe{
+    position:fixed; left:0; right:0; bottom:14px; z-index:10; text-align:center;
+    color:var(--muted); font-size:.78rem; pointer-events:none; animation:bob 1.6s ease-in-out infinite;
+  }
+  @keyframes bob{0%,100%{transform:translateY(0); opacity:.55} 50%{transform:translateY(-6px); opacity:1}}
+  .empty{height:100dvh; display:flex; align-items:center; justify-content:center; color:var(--muted)}
 </style>
 </head>
 <body>
-<header>
-  <h1>🎬 <span class="film">Filmden</span> İngilizce</h1>
-  <p>Cümleyi oku, anlamını gör — sonra tıkla ve o cümlenin <b>gerçek film & dizilerde</b> nasıl söylendiğini izle. 🔊 simgesine dokunarak telaffuzu gerçek kişilerden dinle.</p>
-</header>
-
-<div class="wrap">
-  <div class="controls">
-    <input id="search" type="text" placeholder="🔍 Cümle veya kelime ara...">
-  </div>
+<div class="topbar">
+  <div class="brand">🎬 <span class="film">Filmden</span> İngilizce</div>
   <div class="chips" id="chips"></div>
-  <div class="count" id="count"></div>
-  <div id="list"></div>
-  <footer>
-    🎬 = PlayPhrase.me (film/dizi sahnesi) &nbsp;•&nbsp; 🔊 = YouGlish (gerçek telaffuz)<br>
-    Cümleler dış servislerde aranır; videolar gerçek film ve dizilerden gelir.
-  </footer>
+  <button id="searchBtn" title="Ara">🔍</button>
 </div>
+<div id="searchBox"><input id="search" type="text" placeholder="Cümle veya kelime ara..."></div>
+
+<div class="feed" id="feed"></div>
+
+<div class="counter" id="counter"></div>
+<div class="swipe" id="swipe">↑ Kaydır ↑</div>
 
 <script>
 const DATA = [
@@ -270,16 +284,88 @@ const DATA = [
   {en:"It costs an arm and a leg.", tr:"Bir servete mal oluyor.", movie:"Sık kullanılan sahne", lvl:"C"},
   {en:"Don't count your chickens.", tr:"Dereyi görmeden paçaları sıvama.", movie:"Sık kullanılan sahne", lvl:"C"},
   {en:"That's the last straw.", tr:"Bu bardağı taşıran son damla.", movie:"Sık kullanılan sahne", lvl:"C"},
-  {en:"Let's cut to the chase.", tr:"Sadede gelelim.", movie:"Sık kullanılan sahne", lvl:"C"}
+  {en:"Let's cut to the chase.", tr:"Sadede gelelim.", movie:"Sık kullanılan sahne", lvl:"C"},
+
+  // --- Sorular (A/B) ---
+  {en:"What's going on?", tr:"Neler oluyor?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Where have you been?", tr:"Neredeydin?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"What are you talking about?", tr:"Neden bahsediyorsun?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Are you kidding me?", tr:"Benimle dalga mı geçiyorsun?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"What do you mean?", tr:"Ne demek istiyorsun?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Can I ask you something?", tr:"Sana bir şey sorabilir miyim?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Do you know what I mean?", tr:"Ne demek istediğimi anlıyor musun?", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"What's the matter with you?", tr:"Senin neyin var?", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"How could you do this to me?", tr:"Bunu bana nasıl yaparsın?", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Why didn't you tell me?", tr:"Neden bana söylemedin?", movie:"Sık kullanılan sahne", lvl:"B"},
+
+  // --- Günlük hayat / seyahat (A/B) ---
+  {en:"How much is this?", tr:"Bunun fiyatı ne kadar?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I'll take it.", tr:"Onu alıyorum.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Can I have the bill, please?", tr:"Hesabı alabilir miyim, lütfen?", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I'm just looking, thanks.", tr:"Sadece bakıyorum, teşekkürler.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Could you say that again?", tr:"Tekrar söyler misiniz?", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Where is the bathroom?", tr:"Tuvalet nerede?", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I don't feel well.", tr:"Kendimi iyi hissetmiyorum.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"It's up to you.", tr:"Sana kalmış.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Make yourself at home.", tr:"Evindeymiş gibi rahat ol.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I'll be right back.", tr:"Hemen dönerim.", movie:"Sık kullanılan sahne", lvl:"A"},
+
+  // --- Duygular & ilişkiler (B) ---
+  {en:"I can't live without you.", tr:"Sensiz yaşayamam.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"You mean everything to me.", tr:"Benim için her şey demeksin.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I never stopped loving you.", tr:"Seni sevmeyi hiç bırakmadım.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"You broke my heart.", tr:"Kalbimi kırdın.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"I need some time alone.", tr:"Yalnız kalmaya ihtiyacım var.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Don't leave me.", tr:"Beni terk etme.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"I'll always be there for you.", tr:"Senin için hep yanında olacağım.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"You deserve better.", tr:"Daha iyisini hak ediyorsun.", movie:"Sık kullanılan sahne", lvl:"B"},
+
+  // --- Motivasyon / güçlü replikler (B/C) ---
+  {en:"Never give up.", tr:"Asla pes etme.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Believe in yourself.", tr:"Kendine inan.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Nothing is impossible.", tr:"Hiçbir şey imkansız değil.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"You are stronger than you think.", tr:"Düşündüğünden daha güçlüsün.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"It's never too late.", tr:"Hiçbir zaman çok geç değildir.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Follow your dreams.", tr:"Hayallerinin peşinden git.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"One day at a time.", tr:"Günü gününe / Adım adım.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"What doesn't kill you makes you stronger.", tr:"Seni öldürmeyen şey güçlendirir.", movie:"Sık kullanılan sahne", lvl:"C"},
+
+  // --- Daha fazla ünlü replik ---
+  {en:"Run, Forrest, run!", tr:"Koş Forrest, koş!", movie:"Forrest Gump", lvl:"A"},
+  {en:"I'm walking here!", tr:"Yürüyorum burada!", movie:"Midnight Cowboy", lvl:"A"},
+  {en:"You can't sit with us.", tr:"Bizimle oturamazsın.", movie:"Mean Girls", lvl:"A"},
+  {en:"I volunteer as tribute.", tr:"Gönüllü oluyorum.", movie:"The Hunger Games", lvl:"B"},
+  {en:"Wingardium Leviosa.", tr:"(Havalandırma büyüsü)", movie:"Harry Potter", lvl:"A"},
+  {en:"After all this time? Always.", tr:"Bunca zamandan sonra mı? Her zaman.", movie:"Harry Potter", lvl:"C"},
+  {en:"Why are you so obsessed with me?", tr:"Neden bana bu kadar takıntılısın?", movie:"Mean Girls", lvl:"B"},
+  {en:"I'm not a hero.", tr:"Ben bir kahraman değilim.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"This is the way.", tr:"Yol budur.", movie:"The Mandalorian", lvl:"A"},
+  {en:"With all due respect...", tr:"Kusura bakmayın ama... / Saygısızlık olmasın ama...", movie:"Sık kullanılan sahne", lvl:"C"},
+
+  // --- Phrasal verbs & kalıplar (C) ---
+  {en:"Calm down and take a deep breath.", tr:"Sakinleş ve derin bir nefes al.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Watch your step.", tr:"Adımına dikkat et.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Knock it off!", tr:"Kes şunu!", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Get over it.", tr:"Aş bunu / Unut gitsin.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Hang in there.", tr:"Dayan / Pes etme.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"Back off!", tr:"Geri çekil!", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Suit yourself.", tr:"Sen bilirsin / Nasıl istersen.", movie:"Sık kullanılan sahne", lvl:"C"},
+  {en:"Mind your own business.", tr:"Kendi işine bak.", movie:"Sık kullanılan sahne", lvl:"B"},
+  {en:"That's enough.", tr:"Bu kadar yeter.", movie:"Sık kullanılan sahne", lvl:"A"},
+  {en:"Give me a break.", tr:"Yapma ya / Rahat bırak.", movie:"Sık kullanılan sahne", lvl:"B"}
 ];
 
-const list = document.getElementById('list');
-const count = document.getElementById('count');
+const feed = document.getElementById('feed');
 const chipsBox = document.getElementById('chips');
 const search = document.getElementById('search');
+const searchBtn = document.getElementById('searchBtn');
+const searchBox = document.getElementById('searchBox');
+const counter = document.getElementById('counter');
+const swipe = document.getElementById('swipe');
 
 let activeLvl = 'all';
-const LVL_NAMES = {all:'Tümü', A:'Kolay (A)', B:'Orta (B)', C:'İleri (C)'};
+let current = [];
+const LVL_NAMES = {all:'Tümü', A:'A', B:'B', C:'C'};
 
 ['all','A','B','C'].forEach(l=>{
   const c = document.createElement('div');
@@ -289,32 +375,72 @@ const LVL_NAMES = {all:'Tümü', A:'Kolay (A)', B:'Orta (B)', C:'İleri (C)'};
   chipsBox.appendChild(c);
 });
 
+searchBtn.onclick = ()=>{ searchBox.classList.toggle('show'); if(searchBox.classList.contains('show')) search.focus(); };
+
 function pp(phrase){ return 'https://www.playphrase.me/#/search?q=' + encodeURIComponent(phrase); }
 function yg(phrase){ return 'https://youglish.com/pronounce/' + encodeURIComponent(phrase) + '/english'; }
 
+// Cihazın kendi sesiyle anında telaffuz
+function speak(text){
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = .9;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
 function render(){
   const q = search.value.trim().toLowerCase();
-  const items = DATA.filter(d=>{
+  current = DATA.filter(d=>{
     const okLvl = activeLvl==='all' || d.lvl===activeLvl;
     const okQ = !q || d.en.toLowerCase().includes(q) || d.tr.toLowerCase().includes(q);
     return okLvl && okQ;
   });
-  count.textContent = items.length + ' cümle';
-  if(!items.length){ list.innerHTML = '<div class="empty">Sonuç bulunamadı 🔍</div>'; return; }
-  list.innerHTML = items.map(d=>`
-    <div class="card">
-      <span class="lvl ${d.lvl}">${d.lvl}</span>
-      <div class="en">${escapeHtml(d.en)}<span class="say" title="Telaffuzu dinle" onclick="window.open('${yg(d.en)}','_blank')">🔊</span></div>
-      <div class="tr">${escapeHtml(d.tr)}</div>
-      <div class="movie">🎞️ ${escapeHtml(d.movie)}</div>
-      <div class="links">
-        <a class="btn play" href="${pp(d.en)}" target="_blank" rel="noopener">🎬 Filmde izle</a>
-        <a class="btn you" href="${yg(d.en)}" target="_blank" rel="noopener">🔊 Telaffuz</a>
+  if(!current.length){ feed.innerHTML = '<div class="empty">Sonuç bulunamadı 🔍</div>'; counter.textContent=''; return; }
+  feed.innerHTML = current.map((d,i)=>`
+    <section class="slide" data-i="${i}">
+      <div class="inner">
+        <span class="lvlTag ${d.lvl}">${d.lvl==='A'?'KOLAY':d.lvl==='B'?'ORTA':'İLERİ'}</span>
+        <div class="en">${escapeHtml(d.en)}<span class="say" data-say="${escapeHtml(d.en)}" title="Dinle">🔊</span></div>
+        <div class="tr">${escapeHtml(d.tr)}</div>
+        <div class="movie">🎞️ ${escapeHtml(d.movie)}</div>
+        <div class="links">
+          <a class="btn play" href="${pp(d.en)}" target="_blank" rel="noopener">🎬 Filmde izle</a>
+          <a class="btn you" href="${yg(d.en)}" target="_blank" rel="noopener">🔊 Telaffuz</a>
+        </div>
       </div>
-      <div class="hint">Link, bu cümlenin geçtiği gerçek film & dizi sahnelerini açar.</div>
-    </div>
+    </section>
   `).join('');
+  feed.scrollTop = 0;
+  updateCounter(0);
 }
+
+function updateCounter(i){ counter.textContent = (i+1) + ' / ' + current.length; }
+
+// Anlık telaffuz (event delegation)
+feed.addEventListener('click', e=>{
+  const s = e.target.closest('.say');
+  if(s){ speak(s.dataset.say); }
+});
+
+// Aktif slaytı takip et → sayaç + ipucu
+let ticking=false;
+feed.addEventListener('scroll', ()=>{
+  if(swipe.style.opacity!=='0'){ swipe.style.opacity='0'; swipe.style.transition='opacity .4s'; }
+  if(ticking) return; ticking=true;
+  requestAnimationFrame(()=>{
+    const i = Math.round(feed.scrollTop / window.innerHeight);
+    updateCounter(Math.min(i, current.length-1));
+    ticking=false;
+  });
+});
+
+// Klavye ok tuşları (masaüstü)
+window.addEventListener('keydown', e=>{
+  if(e.key==='ArrowDown'||e.key==='PageDown'){ feed.scrollBy({top:window.innerHeight, behavior:'smooth'}); e.preventDefault(); }
+  if(e.key==='ArrowUp'||e.key==='PageUp'){ feed.scrollBy({top:-window.innerHeight, behavior:'smooth'}); e.preventDefault(); }
+});
 
 function escapeHtml(s){ return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
